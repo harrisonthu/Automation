@@ -1,0 +1,11 @@
+In Python,
+
+User:    He/She can paste the columns name(copied from Excel) to paste on txt file
+Txtfile: it will contain the column names, separated by tabs.(See attached image)
+
+Python Script: 
+      1. Read txt file
+      2. Ask whether the user wants (Null, Column name as same output column name, "convert float")
+      3. Read the txt file and run the process
+      4. (Output) Give all the total number of columns (e.g 18 columns) and print each of the output in new line so that it is easier to copy and paste it on SQL server
+      
