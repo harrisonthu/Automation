@@ -1,0 +1,2 @@
+Sub-Channel	Brand	Date	Campaign Name	Market	Parent Product Desc	Parent Market Desc
+N/A (Will be NULL)	Product Name	DeliveryDate	CampaignName	N/A (Will be NULL)	N/A (Will be NULL)	N/A (Will be NULL)
