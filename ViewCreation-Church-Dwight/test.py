@@ -49,16 +49,20 @@ def convfloatcolname():
             table = table + [i.split('\t')]
 
     templist = []
+    
+    
+
 
     for row in table:
         for i in range(len(head)):
             key = head[i]
+            ##print("key:::::::::", key)
             value = row[i]
             ## if item in txt file contains NULL
             if value in null_str_list:
                 ## print out with Float Null format
                 hanfloat = ',CONVERT(FLOAT,NULL) as [', key+']'
-                templist.append(",".join(hanfloat))
+                templist.append(" ".join(hanfloat))
             ## if item in txt does NOT contains NULL
             else:
                 cc = ", ["+value+ "] as ["+key+"]"
@@ -68,10 +72,6 @@ def convfloatcolname():
 
  ###  input:::  Child Any Promo Dollars Chg vs. Yago
  ###  Final:::  ,convert(float,NULL) as [Child Any Promo Dollars Chg vs. Yago]
-
-
-
-    
 
 
 
