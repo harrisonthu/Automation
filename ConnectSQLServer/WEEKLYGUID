@@ -57,9 +57,79 @@ def ConnectandCheckMaxDate():
       ###   Checking Today and validate if today is Monday  ###
       #today = datetime.datetime.today()
       today = date.today()
-      print("today:", today)
-      
+      print("today:", today)      
       print('Max date from format: ',today.strftime('%d, %b, %y'))
+
+      ################################################################################################
+      ################################################################################################
+
+      cursor3.execute("""
+
+
+      SELECT CreativeGUID, 
+            ClientName, 
+            [AdvertiserName], 
+            CreativeDescription 
+      FROM   ( 
+            -- Atlas feed 
+            SELECT DISTINCT [Ad ID]           AS CreativeGUID, 
+                        [Advertiser Name] AS ClientName, 
+                        [Advertiser Name] AS [AdvertiserName], 
+                        [Ad Name]         AS CreativeDescription 
+            FROM   [DFID043910_DS999606_Email_Atlas_UI_Performance_Report_TRowePrice_Extracted] 
+            WHERE  [Campaign Type] = 'Display' 
+                  AND [Statistics Date] >= '2016-09-01' -- pull data from '2016-09-01'   
+                  AND ( [Impressions] > '0' 
+                        OR [clicks] > '0' ) 
+                  AND [campaign name] NOT LIKE '%Yieldbot%' 
+                  AND [campaign name] NOT LIKE 'FB_%' 
+                  AND [campaign name] NOT LIKE '%_Social_%' 
+                  AND [campaign name] NOT LIKE 'Instagram_%' 
+                  AND [campaign name] NOT LIKE 'IG_%' 
+                  -- Added by Han on 4/10/2018 (Leo requested to filter out campaign name --SEM-- (e.g TR_FIS_103_T Rowe Retirement Advisor_SEM_1H_2018) 
+                  AND [campaign name] NOT LIKE '%SEM%' 
+                  AND [campaign name] NOT IN ( 'TRP_APP_Q4_2017_UM_ Retargeting', 'TRP_APP_Q4_2017_UM_Referral', 'TRP_APP_Q4_2017_UM_VideoViews', 'TRP_II_Q4_2017_UM_ Retargeting', 
+                                                'TRP_II_Q4_2017_UM_Referral', 'TRP_II_Q4_2017_UM_VideoViews' ) 
+            UNION ALL 
+            -- Sizmek feed 
+            SELECT DISTINCT Cast([AdID] AS NVARCHAR(50)), 
+                              CASE 
+                              WHEN [AdvertiserName] = 'TRowe Price' THEN 'T. Rowe Price' 
+                              ELSE [AdvertiserName] 
+                              END AS [ClientName], 
+                              CASE 
+                              WHEN [AdvertiserName] = 'TRowe Price' THEN 'T. Rowe Price' 
+                              ELSE [AdvertiserName] 
+                              END AS [AdvertiserName], 
+                              [AdName] 
+            FROM   [dbo].[DFID061542_DS020301_Sizmek_Campaign_Report_TRowePrice_Extracted] 
+            WHERE  [DeliveryDate] >= '2017-10-02' -- pull data from '2016-09-01'   
+                  AND ( [Impressions] > '0' 
+                        OR [clicks] > '0' ) 
+                  AND [campaignname] NOT LIKE '%Yieldbot%' 
+                  AND [campaignname] NOT LIKE 'FB_%' 
+                  AND [campaignname] NOT LIKE '%_Social_%' 
+                  AND [campaignname] NOT LIKE 'Instagram_%' 
+                  AND [campaignname] NOT LIKE 'IG_%' 
+                  AND [campaignname] NOT LIKE '%Q3 2017%' 
+                  -- Added by Han on 4/10/2018 (Leo requested to filter out campaign name --SEM-- (e.g TR_FIS_103_T Rowe Retirement Advisor_SEM_1H_2018) 
+                  AND [campaignname] NOT LIKE '%SEM%' 
+                  AND [campaignname] NOT IN ( 'TRP_APP_Q4_2017_UM_ Retargeting', 'TRP_APP_Q4_2017_UM_Referral', 'TRP_APP_Q4_2017_UM_VideoViews', 'TRP_II_Q4_2017_UM_ Retargeting', 
+                                                'TRP_II_Q4_2017_UM_Referral', 'TRP_II_Q4_2017_UM_VideoViews' )) FOO 
+
+
+            """)
+
+      result = cursor3.fetchone()
+      while result:
+            print(str(result[0]) + result[1] + " lives in " + result[2] + "last column"+ result[3])      
+      ################################################################################################
+      ################################################################################################
+
+
+
+
+
 
 
 def ChecktodayMonday():
@@ -75,6 +145,7 @@ def ChecktodayMonday():
       
 def TriggerandRunWEEKLYCreativeGUID_DE104():
       print("haha")
+      
       
       
 
