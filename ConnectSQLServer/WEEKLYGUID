@@ -119,18 +119,14 @@ def ConnectandCheckMaxDate():
 
 
             """)
-
-      result = cursor3.fetchone()
-      while result:
-            print(str(result[0]) + result[1] + " lives in " + result[2] + "last column"+ result[3])      
+      print(cursor3)
+      print(type(cursor3))
+      result = cursor3.fetchall()
+      print("result: ",result)
+      #while result:
+       #     print(str(result[0]) + result[1] + " lives in " + result[2] + "last column"+ result[3])      
       ################################################################################################
       ################################################################################################
-
-
-
-
-
-
 
 def ChecktodayMonday():
       istodaymonday = date.today().weekday()
