@@ -1,0 +1,7 @@
+  SELECT
+        DayInBetween AS missingDate
+    FROM [dbo].[GetAllDaysInBetween]('2018-11-03', '2018-01-01') AS AllDaysInBetween
+    WHERE NOT EXISTS 
+        (SELECT [Campaign Name] FROM [All_Data_Sources_All_Channels_bkp_952018] WHERE [Date] = AllDaysInBetween.DayInBetween)
+
+
