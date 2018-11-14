@@ -4,4 +4,48 @@
     WHERE NOT EXISTS 
         (SELECT [Campaign Name] FROM [All_Data_Sources_All_Channels_bkp_952018] WHERE [Date] = AllDaysInBetween.DayInBetween)
 
+----------------------------
+        Create Table-valued function in SQL Server Studio Manager under Programmability:
+  
+-- This is only  Deloitte client
+USE [DM_1220_DeloitteUSA]    
+GO
+
+/****** Object:  UserDefinedFunction [dbo].[GetAllDaysInBetween]    Script Date: 11/14/2018 4:13:56 PM ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE FUNCTION [dbo].[GetAllDaysInBetween](@FirstDay DATE, @LastDay DATE)
+RETURNS @retDays TABLE 
+(
+    DayInBetween DATE  -- return Date type
+)
+AS 
+BEGIN
+    DECLARE @currentDay DATE
+    SELECT @currentDay = @FirstDay
+
+    WHILE @currentDay <= @LastDay
+    BEGIN
+
+        INSERT @retDays (DayInBetween)
+            SELECT @currentDay
+
+        SELECT @currentDay = DATEADD(DAY, 1, @currentDay)
+    END 
+
+    RETURN
+END
+
+GO
 
