@@ -1,7 +1,6 @@
 Install Azure related SDKs and command-line (CLI) tools you need:
   www.azure.microsoft.com/downloads
 
-
 --------------------------------------------------------------------------------------
 Create a data factory
 On the left menu, select + New > Data + Analytics > Data Factory:
@@ -13,4 +12,5 @@ You can see all the relationships and dependencies of your data pipelines across
 Link: https://www.jamesserra.com/archive/2014/11/what-is-azure-data-factory/
 
 --------------------------------------------------------------------------------------
+
 
