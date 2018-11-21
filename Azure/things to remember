@@ -7,7 +7,13 @@ On the left menu, select + New > Data + Analytics > Data Factory:
     You will author your activities, combine them into a pipeline, set an execution schedule and you’re done.  
 Data Factory also provides an up-to-the moment monitoring dashboard, which means you can deploy your data pipelines and immediately begin to view them as part of your monitoring dashboard.
     Within the Azure Preview Portal, you get a visual layout of all of your pipelines and data inputs and outputs.  
-You can see all the relationships and dependencies of your data pipelines across all of your sources so you always know where data is coming from and where it is going.  You get a historical accounting of job execution, data production status, and system health in a single monitoring dashboard.
+You can see all the relationships and dependencies of your data pipelines across all of your sources so you always know where data is coming from and where it is going.  
+You get a historical accounting of job execution, data production status, and system health in a single monitoring dashboard.
+
+--------------------------------------------------------------------------------------
+
+Azure Data Factory is the platform that solves such data scenarios. It is a cloud-based data integration service that allows you to create data-driven workflows in the cloud for orchestrating and automating data movement and data transformation.
+Using Azure Data Factory, you can create and schedule data-driven workflows (called pipelines) that can ingest data from disparate data stores. 
 
 Link: https://www.jamesserra.com/archive/2014/11/what-is-azure-data-factory/
 
