@@ -1,0 +1,70 @@
+### Author: Han Thu  	  ###
+### Date: April 23, 2018  ###
+### WEEKLY GUID File ###
+
+
+#!/usr/bin/env python     ## Set interpreter used to be the one on your environment's $PATH
+import pyodbc
+import time
+import os
+import datetime
+from datetime import date
+
+
+"""
+Handle datetime to str and print out in date format
+https://github.com/mkleehammer/pyodbc/issues/329
+
+def handleDateToString(dateObj):
+    return dateObj.strftime('%H:%M:%S.%f')
+"""
+
+
+
+def ConnectandCheckMaxDate():
+      global max_date
+      global max_date2
+      cnxn = pyodbc.connect('DRIVER={SQL Server};SERVER=wmdata-us.database.windows.net;DATABASE=WM-NA-TRP;UID=;PWD=')
+      cursor = cnxn.cursor()    ## cursor for "DS061502b_Marin_Keyword_Conversion_Report_TRP_TPD"
+      cursor2 = cnxn.cursor()   ## cursor for "DS061502b_Marin_Keyword_Conversion_Report_TRP_CollegeSavings"
+      cursor3 = cnxn.cursor()   ## cursor for "DS061502b_Marin_Keyword_Conversion_Report_TRP_Individual_Investor"
+                        #########  -- TRP_TPD   #########  
+      cursor.execute(""" 
+      SELECT MAX([Date])
+      FROM [dbo].[DFID044034_DS061502b_Marin_Keyword_Conversion_Report_TRP_TPD_Extracted]
+      """)
+      for record in cursor:
+        print("Max date in DS061502b TRP_TPD Report: ",record[0])
+      max_date = record[0]
+      ### https://stackoverflow.com/questions/311627/how-to-print-date-in-a-regular-format-in-python
+      print("Max date from ::: ",max_date.strftime('%d, %b, %y'))
+                        #########  -- TRP_CollegeSavings   #########  
+      cursor2.execute(""" 
+            SELECT MAX([Date])
+            FROM [dbo].[DFID044035_DS061502b_Marin_Keyword_Conversion_Report_TRP_CollegeSavings_Extracted]
+      """)
+      for record in cursor:
+            print("Max date in DS061502b TRP_CollegeSavings Report: ",record[0])
+      max_date = record[0]
+      print("Max date from ::: ",max_date.strftime('%d, %b, %y'))
+                        #########  -- TRP_CollegeSavings   #########  
+      cursor3.execute(""" 
+            SELECT MAX([Date])
+            FROM [dbo].[DFID044035_DS061502b_Marin_Keyword_Conversion_Report_TRP_CollegeSavings_Extracted]
+      """)
+      for record in cursor:
+            print("Max date in DS061502b TRP_CollegeSavings Report: ",record[0])
+      max_date = record[0]
+      print("Max date from ::: ",max_date.strftime('%d, %b, %y'))
+
+
+
+def main():
+      os.system('cls')  ## clear the screen windows
+      ConnectandCheckMaxDate()
+      
+
+
+
+main()
+
