@@ -19,8 +19,6 @@ def handleDateToString(dateObj):
     return dateObj.strftime('%H:%M:%S.%f')
 """
 
-
-
 def ConnectandCheckMaxDate_onAzure():
       global max_date
       global max_date2
@@ -59,10 +57,60 @@ def ConnectandCheckMaxDate_onAzure():
 
 
 
+def ConnectandCheckMaxDate_In_Premise():
+      
+      cnxn = pyodbc.connect('DRIVER={SQL Server};SERVER=10.2.186.148\SQLINS02,4721;DATABASE=DM_1406_TRowePrice;UID=DASuser01;PWD=DASpassw0rd')
+      cursor = cnxn.cursor() ## cursor for max date from DS020301_Sizmek
+      cursor2 = cnxn.cursor()
+      cursor3 = cnxn.cursor()
+
+      ## Check max date from DS020301_Sizmek report
+      cursor.execute(""" 
+      SELECT MAX([DeliveryDate])
+      FROM [DM_1406_TRowePrice].[dbo].[DFID061542_DS020301_Sizmek_Campaign_Report_TRowePrice_Extracted]
+      """)
+
+      for record in cursor:
+        print("Max date in [DS020301] Sizmek Campaign Report: ",record[0])
+      max_date = record[0]
+      ### https://stackoverflow.com/questions/311627/how-to-print-date-in-a-regular-format-in-python
+      print("Max date from ::: ",max_date.strftime('%d, %b, %y'))
+
+      ## Check max date from DS020302_Sizmek Conversions report
+      cursor2.execute(""" 
+      SELECT MAX([ConversionDate])
+      FROM [DM_1406_TRowePrice].[dbo].[DFID061544_DS020302_Sizmek_Conversion_Report_TRowePrice_Extracted]
+      """)
+
+      for record2 in cursor2:
+        print("Max date in [DS020302] Sizmek Conversion Report: ",record2[0])
+      max_date2 = record2[0]
+      
+      print("Max date from ::: ",max_date2.strftime('%d, %b, %y'))
+      print("max date kaaaaaaa ::: ",max_date2.isoformat())
+
+      ###   Checking Today and validate if today is Monday  ###
+      #today = datetime.datetime.today()
+      today = date.today()
+      print("today:", today)      
+      print('Max date from format: ',today.strftime('%d, %b, %y'))
+
+      ################################################################################################
+      ################################################################################################
+
+
+
+
+
+
+
+
+
+
 def main():
       os.system('cls')  ## clear the screen windows
       ConnectandCheckMaxDate_onAzure()
-      
+      ConnectandCheckMaxDate_In_Premise()
 
 
 
