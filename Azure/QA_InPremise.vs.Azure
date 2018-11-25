@@ -21,10 +21,10 @@ def handleDateToString(dateObj):
 
 
 
-def ConnectandCheckMaxDate():
+def ConnectandCheckMaxDate_onAzure():
       global max_date
       global max_date2
-      cnxn = pyodbc.connect('DRIVER={SQL Server};SERVER=wmdata-us.database.windows.net;DATABASE=WM-NA-TRP;UID=;PWD=')
+      cnxn = pyodbc.connect('DRIVER={SQL Server};SERVER=wmdata-us.database.windows.net;DATABASE=WM-NA-TRP;UID=DASuser;PWD=Passw0rd')
       cursor = cnxn.cursor()    ## cursor for "DS061502b_Marin_Keyword_Conversion_Report_TRP_TPD"
       cursor2 = cnxn.cursor()   ## cursor for "DS061502b_Marin_Keyword_Conversion_Report_TRP_CollegeSavings"
       cursor3 = cnxn.cursor()   ## cursor for "DS061502b_Marin_Keyword_Conversion_Report_TRP_Individual_Investor"
@@ -43,17 +43,17 @@ def ConnectandCheckMaxDate():
             SELECT MAX([Date])
             FROM [dbo].[DFID044035_DS061502b_Marin_Keyword_Conversion_Report_TRP_CollegeSavings_Extracted]
       """)
-      for record in cursor:
+      for record in cursor2:
             print("Max date in DS061502b TRP_CollegeSavings Report: ",record[0])
       max_date = record[0]
       print("Max date from ::: ",max_date.strftime('%d, %b, %y'))
                         #########  -- TRP_CollegeSavings   #########  
       cursor3.execute(""" 
             SELECT MAX([Date])
-            FROM [dbo].[DFID044035_DS061502b_Marin_Keyword_Conversion_Report_TRP_CollegeSavings_Extracted]
+            FROM [dbo].[DFID060204_DS061502b_Marin_Keyword_Conversion_Report_TRP_Individual_Investor_Extracted]
       """)
-      for record in cursor:
-            print("Max date in DS061502b TRP_CollegeSavings Report: ",record[0])
+      for record in cursor3:
+            print("Max date in DS061502b TRP_Individual Investor Report: ",record[0])
       max_date = record[0]
       print("Max date from ::: ",max_date.strftime('%d, %b, %y'))
 
@@ -61,7 +61,7 @@ def ConnectandCheckMaxDate():
 
 def main():
       os.system('cls')  ## clear the screen windows
-      ConnectandCheckMaxDate()
+      ConnectandCheckMaxDate_onAzure()
       
 
 
