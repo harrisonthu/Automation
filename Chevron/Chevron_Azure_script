@@ -180,48 +180,11 @@ def ConnectPremise():
 
 def matching(list1, list2):
       """
-      Checking if the two data from Azure/Premise are the same
-      by checking each position in the two lists (listA, listP)
+      Function to check if the two lists have same data.
+      Reference:
+      https://www.quora.com/How-can-I-do-a-comparison-of-two-lists-in-Python-with-each-value
       """
-      mylist1 = []
-      mylist2 = []
-      mylist1 = list1
-      mylist2 = list2
-      global matchlist
-      matchlist = []
-      for i in listA1:
-            for j in listP1:
-                  if i==j:
-                        mylist1.append('Matched')
-                        mylist2.append('Matched')
-                  else:
-                        mylist1.append('UnMatched')
-                        mylist2.append('UnMatched')
-      
-                  
-      return mylist1,mylist2
-
-
-def matching2(list1, list2):
-      mylist1 = list1
-      mylist2 = list2
-      resultAlist = mylist1
-      resultPlist = mylist2
-      for i in mylist1:
-            for j in mylist2:
-                  if (i==j):
-                        resultAlist.append('Matched')
-                        resultPlist.append('Matched')
-                  else:
-                        resultAlist.append('UnMatched')
-                        resultPlist.append('UnMatched')
-      print("resultAlist: ", resultAlist)
-      print("resultPlist: ", resultPlist)
-      
-def matching3(list1,list2):
-      finallistA1 = []
-      finallistP1 = []
-      
+      return [i for i, j in zip(list1,list2) if i==j]
 
 
 
@@ -243,7 +206,27 @@ def main():
       os.system('cls')  ## clear the screen windows
       ConnectAzure()
       ConnectPremise()
-      #matching2(listA1,listP1)
+      finallist1 = matching(listA1,listP1)
+      finallist2 = matching(listA2,listP2)
+      finallist3 = matching(listA3,listP3)
+      if(len(finallist1) == len(listA1)):
+            finallist1.append('Matched')
+      else:
+            finallist1.append('UnMatched')
+      if(len(finallist2) == len(listA2)):
+            finallist2.append('Matched')
+      else:
+            finallist2.append('UnMatched')
+      if(len(finallist3) == len(listA3)):
+            finallist3.append('Matched')
+      else:
+            finallist3.append('UnMatched')
+
+      print(finallist1)
+      print(finallist2)
+      print(finallist3)
+
+
       """
       for i in range(1,len(listA1)+1):
             firstlistname= 'listA'+str(i)
@@ -251,7 +234,7 @@ def main():
             finallist.append(matching(firstlistname , secondlistname))
       print('before exporting')
       """
-      exporting()
+      #exporting()
 
 
 main()
