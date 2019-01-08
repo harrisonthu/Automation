@@ -26,10 +26,18 @@ def handleDateToString(dateObj):
     return dateObj.strftime('%H:%M:%S.%f')
 """
 
+
+
 def ConnectAzure():
-      global finaltable
-      
-      print ("Connecting via ODBC")
+      ## Declaring gloabl lists to store the data from Azure
+      ## so that the result will be exported to Excel
+      global listA1
+      global listA2
+      global listA3
+      listA1 = []
+      listA2 = []
+      listA3 = []
+      print ("Connecting 'Chevron' client on Azure")
       cnxn = pyodbc.connect('DRIVER={SQL Server};SERVER=wmdata-us.database.windows.net;DATABASE=WM-NA-Chevron;UID=DASuser;PWD=Passw0rd')
             ## Creating cursors to pull data from Chevron clients ##
       cursor1 = cnxn.cursor()   ## date cursor for "DFID066573_DS999922_Email_Innovid_Device_Video_Report_Chevron_Extracted"
@@ -38,42 +46,41 @@ def ConnectAzure():
 
             ########  Table 1  ########
             #### Creating list for <DS999922_Email_Innovid_Device_Video_Report_Chevron_Extracted> table
-      list1 = ['DFID066573_DS999922_Email_Innovid_Device_Video_Report_Chevron_Extracted']
+      listA1.append('DFID066573_DS999922_Email_Innovid_Device_Video_Report_Chevron_Extracted')
             ## Getting max date
       cursor1.execute(""" 
                 SELECT MAX([Day])
                 FROM [dbo].[DFID066573_DS999922_Email_Innovid_Device_Video_Report_Chevron_Extracted]
       """)
       for record in cursor1:
-            print(type(record[0]))
-            list1.append(record[0])
-            print("Max date in DS999922_Email_Innovid_Device_Video_Report_Chevron_Extracted: ",record[0])
+            listA1.append(record[0])
+            #print("Max date in DS999922_Email_Innovid_Device_Video_Report_Chevron_Extracted: ",record[0])
             ## Getting total number of rows
       cursor1.execute(""" 
                 SELECT count(*)
                 FROM [dbo].[DFID066573_DS999922_Email_Innovid_Device_Video_Report_Chevron_Extracted]
       """)
       for record in cursor1:
-            list1.append(record[0])
-            print("Total Rows: ",record[0])
-      print("list1: ",list1)
+            listA1.append(record[0])
+            #print("Total Rows: ",record[0])
+      #print("list1: ",listA1)
 
             ########  Table 2  ########
             ####  Creating list for <DFID066576_DS999923_Email_Innovid_Device_Metadata_Report_Chevron_Extracted> table
-      list2 = ['DFID066576_DS999923_Email_Innovid_Device_Metadata_Report_Chevron_Extracted']
+      listA2.append('DFID066576_DS999923_Email_Innovid_Device_Metadata_Report_Chevron_Extracted')
             ## Getting total number of rows
       cursor2.execute(""" 
                 SELECT count(*)
                 FROM [dbo].[DFID066576_DS999923_Email_Innovid_Device_Metadata_Report_Chevron_Extracted]
       """)
       for record in cursor2:
-            list2.append(record[0])
-            print("Total Rows: ",record[0])
-      print("list2: ",list2)
+            listA2.append(record[0])
+            #print("Total Rows: ",record[0])
+      #print("list2: ",listA2)
 
             ########  Table 3  ########
             #### Creating list for <DS020307_Sizmek_Device_Video_Report_Chevron_Extracted> table
-      list3 = ['DFID066577_DS020307_Sizmek_Device_Video_Report_Chevron_Extracted']
+      listA3.append('DFID066577_DS020307_Sizmek_Device_Video_Report_Chevron_Extracted')
             ## Getting max date
       cursor3.execute(""" 
                 SELECT MAX([Date])
@@ -81,81 +88,170 @@ def ConnectAzure():
       """)
       for record in cursor3:
             sep = ' '   ## create separator for converting smalldatetime to str
-            list3.append(str(record[0]).split(sep,1)[0])
-            print("Max date in DFID066577_DS020307_Sizmek_Device_Video_Report_Chevron_Extracted: ",record[0])
+            listA3.append(str(record[0]).split(sep,1)[0])
+            #print("Max date in DFID066577_DS020307_Sizmek_Device_Video_Report_Chevron_Extracted: ",record[0])
             ## Getting total number of rows
       cursor3.execute(""" 
                 SELECT count(*)
                 FROM [dbo].[DFID066577_DS020307_Sizmek_Device_Video_Report_Chevron_Extracted]
       """)
       for record in cursor3:
-            list3.append(record[0])
-            print("Total Rows: ",record[0])
-      print("list3: ",list3)
+            listA3.append(record[0])
+            #print("Total Rows: ",record[0])
+      #print("list3: ",listA3)
 
 
 
 
+def ConnectPremise():
+      ## Declaring gloabl lists to store the data from Premise
+      ## so that the result will be exported to Excel
+      global listP1
+      global listP2
+      global listP3
+      listP1 = []
+      listP2 = []
+      listP3 = []
+      print ("Connecting 'Chevron' client in Premise ...")
+      cnxn = pyodbc.connect('DRIVER={SQL Server};SERVER=10.2.186.181\SQLINS04,4723;DATABASE=DM_1485_Chevron;UID=DASuser01;PWD=DASpassw0rd')
+            ## Creating cursors to pull data from Chevron clients In Premise ##
+      cursor1 = cnxn.cursor()   ## date cursor for "DFID066573_DS999922_Email_Innovid_Device_Video_Report_Chevron_Extracted"
+      cursor2 = cnxn.cursor()   ## date cursor for "DFID066576_DS999923_Email_Innovid_Device_Metadata_Report_Chevron_Extracted"
+      cursor3 = cnxn.cursor()   ## date cursor for "DFID066577_DS020307_Sizmek_Device_Video_Report_Chevron_Extracted"
 
-
-
-
-
-def ConnectandCheckMaxDate_In_Premise():
-      
-      cnxn = pyodbc.connect('DRIVER={SQL Server};SERVER=10.2.186.148\SQLINS02,4721;DATABASE=DM_1406_TRowePrice;UID=DASuser01;PWD=DASpassw0rd')
-      cursor = cnxn.cursor() ## cursor for max date from DS020301_Sizmek
-      cursor2 = cnxn.cursor()
-      cursor3 = cnxn.cursor()
-
-      ## Check max date from DS020301_Sizmek report
-      cursor.execute(""" 
-      SELECT MAX([DeliveryDate])
-      FROM [DM_1406_TRowePrice].[dbo].[DFID061542_DS020301_Sizmek_Campaign_Report_TRowePrice_Extracted]
+            ########  Table 1  ########
+            #### Creating list for <DS999922_Email_Innovid_Device_Video_Report_Chevron_Extracted> table
+      listP1.append('DFID066573_DS999922_Email_Innovid_Device_Video_Report_Chevron_Extracted')
+            ## Getting max date
+      cursor1.execute(""" 
+                SELECT MAX([Day])
+                FROM [dbo].[DFID066573_DS999922_Email_Innovid_Device_Video_Report_Chevron_Extracted]
       """)
+      for record in cursor1:
+            listP1.append(record[0])
+            #print("Max date in DS999922_Email_Innovid_Device_Video_Report_Chevron_Extracted: ",record[0])
+            ## Getting total number of rows
+      cursor1.execute(""" 
+                SELECT count(*)
+                FROM [dbo].[DFID066573_DS999922_Email_Innovid_Device_Video_Report_Chevron_Extracted]
+      """)
+      for record in cursor1:
+            listP1.append(record[0])
+            #print("Total Rows: ",record[0])
+      #print("listP1: ",listP1)
 
-      for record in cursor:
-        print("Max date in [DS020301] Sizmek Campaign Report: ",record[0])
-      max_date = record[0]
-      ### https://stackoverflow.com/questions/311627/how-to-print-date-in-a-regular-format-in-python
-      print("Max date from ::: ",max_date.strftime('%d, %b, %y'))
-
-      ## Check max date from DS020302_Sizmek Conversions report
+            ########  Table 2  ########
+            ####  Creating list for <DFID066576_DS999923_Email_Innovid_Device_Metadata_Report_Chevron_Extracted> table
+      listP2.append('DFID066576_DS999923_Email_Innovid_Device_Metadata_Report_Chevron_Extracted')
+            ## Getting total number of rows
       cursor2.execute(""" 
-      SELECT MAX([ConversionDate])
-      FROM [DM_1406_TRowePrice].[dbo].[DFID061544_DS020302_Sizmek_Conversion_Report_TRowePrice_Extracted]
+                SELECT count(*)
+                FROM [dbo].[DFID066576_DS999923_Email_Innovid_Device_Metadata_Report_Chevron_Extracted]
       """)
+      for record in cursor2:
+            listP2.append(record[0])
+            #print("Total Rows: ",record[0])
+      #print("listP2: ",listP2)
 
-      for record2 in cursor2:
-        print("Max date in [DS020302] Sizmek Conversion Report: ",record2[0])
-      max_date2 = record2[0]
+            ########  Table 3  ########
+            #### Creating list for <DS020307_Sizmek_Device_Video_Report_Chevron_Extracted> table
+      listP3.append('DFID066577_DS020307_Sizmek_Device_Video_Report_Chevron_Extracted')
+            ## Getting max date
+      cursor3.execute(""" 
+                SELECT MAX([Date])
+                FROM [dbo].[DFID066577_DS020307_Sizmek_Device_Video_Report_Chevron_Extracted]
+      """)
+      for record in cursor3:
+            sep = ' '   ## create separator for converting smalldatetime to str
+            listP3.append(str(record[0]).split(sep,1)[0])
+            #print("Max date in DFID066577_DS020307_Sizmek_Device_Video_Report_Chevron_Extracted: ",record[0])
+            ## Getting total number of rows
+      cursor3.execute(""" 
+                SELECT count(*)
+                FROM [dbo].[DFID066577_DS020307_Sizmek_Device_Video_Report_Chevron_Extracted]
+      """)
+      for record in cursor3:
+            listP3.append(record[0])
+            #print("Total Rows: ",record[0])
+      #print("listP3: ",listP3)
+
+
+
+
+def matching(list1, list2):
+      """
+      Checking if the two data from Azure/Premise are the same
+      by checking each position in the two lists (listA, listP)
+      """
+      mylist1 = []
+      mylist2 = []
+      mylist1 = list1
+      mylist2 = list2
+      global matchlist
+      matchlist = []
+      for i in listA1:
+            for j in listP1:
+                  if i==j:
+                        mylist1.append('Matched')
+                        mylist2.append('Matched')
+                  else:
+                        mylist1.append('UnMatched')
+                        mylist2.append('UnMatched')
       
-      print("Max date from ::: ",max_date2.strftime('%d, %b, %y'))
-      print("max date kaaaaaaa ::: ",max_date2.isoformat())
-
-      ###   Checking Today and validate if today is Monday  ###
-      #today = datetime.datetime.today()
-      today = date.today()
-      print("today:", today)      
-      print('Max date from format: ',today.strftime('%d, %b, %y'))
-
-      ################################################################################################
-      ################################################################################################
+                  
+      return mylist1,mylist2
 
 
+def matching2(list1, list2):
+      mylist1 = list1
+      mylist2 = list2
+      resultAlist = mylist1
+      resultPlist = mylist2
+      for i in mylist1:
+            for j in mylist2:
+                  if (i==j):
+                        resultAlist.append('Matched')
+                        resultPlist.append('Matched')
+                  else:
+                        resultAlist.append('UnMatched')
+                        resultPlist.append('UnMatched')
+      print("resultAlist: ", resultAlist)
+      print("resultPlist: ", resultPlist)
+      
+def matching3(list1,list2):
+      finallistA1 = []
+      finallistP1 = []
+      
 
 
 
-
-
-
-
+def exporting():
+      print("I am here in Azure exporting")
+      print(listA1)
+      print(listA2)
+      print(listA3)
+      
+      print("I am here in Premise exporting")
+      print(listP1)
+      print(listP2)
+      print(listP3)
+      
+      
+      
 
 def main():
       os.system('cls')  ## clear the screen windows
       ConnectAzure()
-      #ConnectandCheckMaxDate_In_Premise()
-
+      ConnectPremise()
+      #matching2(listA1,listP1)
+      """
+      for i in range(1,len(listA1)+1):
+            firstlistname= 'listA'+str(i)
+            secondlistname = 'listP'+str(i)
+            finallist.append(matching(firstlistname , secondlistname))
+      print('before exporting')
+      """
+      exporting()
 
 
 main()
