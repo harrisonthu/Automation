@@ -1,0 +1,12 @@
+
+  SELECT
+        DayInBetween AS missingDate
+    FROM dbo.GetAllDaysInBetween('2018-11-01', 
+	----  Find the Max date in the table/view
+	(SELECT MAX([Date])
+  FROM [DM_1406_TRowePrice].[dbo].[DV011_Marin_Search_Final_Combined_TRP])
+	) AS AllDaysInBetween
+	----  END: Find the Max date in the table/view
+
+    WHERE NOT EXISTS 
+        (SELECT [marin_client_id] FROM [DV011_Marin_Search_Final_Combined_TRP] WHERE [Date] = AllDaysInBetween.DayInBetween)
