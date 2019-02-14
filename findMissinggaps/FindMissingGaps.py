@@ -36,7 +36,7 @@ def Connection():
 
 
 """
-    Checking data gaps based on the dates that the table is missing:
+    Checking data gaps from Jan 01, 2019 from  the table is missing:
     Retrieving data and add it in 
 """
 def getIASTable():
@@ -50,7 +50,7 @@ def getIASTable():
         FROM [DM_1406_TRowePrice].[dbo].[DFID052284_DS999622_FTP_IAS_TRP_Extracted]
         """
 
-  ##  Connecting IAS
+  ##  Connecting IAS Table (DS999622_FTP_IAS_TRP)
   ##  List out all the missing dates
   sql = """
         SELECT
@@ -78,7 +78,10 @@ def getIASTable():
 
 
 def getAdobeTable():
-  
+  """
+  Function to pull the table From In-Premise table
+  using Panda library(read_sql) 
+  """
   maxsql_adobe = """
         SELECT MAX([Day])
         FROM [DM_1406_TRowePrice].[dbo].[DFID052226_DS999621_Email_Omniture_TRP_US_Extracted]
@@ -98,20 +101,19 @@ def getAdobeTable():
         WHERE NOT EXISTS 
         (SELECT [Visits] FROM [DM_1406_TRowePrice].[dbo].[DFID052226_DS999621_Email_Omniture_TRP_US_Extracted] WHERE [Day] = AllDaysInBetween.DayInBetween)
          """
-  print("Connected ", Connection.Database)
   print("Finding Missing data gaps in Table [DFID052226_DS999621_Email_Omniture_TRP_US_Extracted] ...")
   then = time.time() # Time before the operations start
   Adobedf = pd.read_sql(sql_adobe, Connection.engine)  # store data frame type of the result
   now = time.time()  # Time after it finished
   maxdateAdobe = pd.read_sql(maxsql_adobe, Connection.engine)
-  #df['DOB1'] = df['DOB'].dt.strftime('%m/%d/%Y')
-  #print("Max date for Table [DFID052284_DS999622_FTP_IAS_TRP_Extracted]: "+ maxdateIAS.to_datetime(datetime))
   print("Max date for Table [DFID052226_DS999621_Email_Omniture_TRP_US_Extracted]: ", maxdateAdobe.iloc[0,0])
   print("Finished finding missing data gaps. It took: ",int(now-then), " seconds")
   return Adobedf
 
 
 
+def getAdobeTable():
+  
 
 
 def main():
