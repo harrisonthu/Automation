@@ -47,40 +47,6 @@ def getIASTable():
   
   maxsql = """
         SELECT MAX([Date])
-        FROM [DM_1406_TRowePrice].[dbo].[DFID052226_DS999621_Email_Omniture_TRP_US_Extracted]
-        """
-
-  ##  Connecting IAS
-  ##  List out all the missing dates
-  sql = """
-        SELECT
-        DayInBetween AS missingDate
-        FROM dbo.GetAllDaysInBetween('2019-01-01', 
-	----  Find the Max date in the table/view
-	(SELECT MAX([Date])
-        FROM [DM_1406_TRowePrice].[dbo].[DFID052284_DS999622_FTP_IAS_TRP_Extracted])
-	) AS AllDaysInBetween
-	----  END: Find the Max date in the table/view
-        WHERE NOT EXISTS 
-        (SELECT [adserver id] FROM [DM_1406_TRowePrice].[dbo].[DFID052284_DS999622_FTP_IAS_TRP_Extracted] WHERE [Date] = AllDaysInBetween.DayInBetween)
-        """
-  print("Connected ", Connection.Database)
-  print("Finding Missing data gaps in Table [DFID052284_DS999622_FTP_IAS_TRP_Extracted] ...")
-  then = time.time() # Time before the operations start
-  IASdf = pd.read_sql(sql, Connection.engine)  # store data frame type of the result
-  now = time.time()  # Time after it finished
-  maxdateIAS = pd.read_sql(maxsql, Connection.engine)
-  #df['DOB1'] = df['DOB'].dt.strftime('%m/%d/%Y')
-  #print("Max date for Table [DFID052284_DS999622_FTP_IAS_TRP_Extracted]: "+ maxdateIAS.to_datetime(datetime))
-  print("Max date for Table [DFID052284_DS999622_FTP_IAS_TRP_Extracted]: ", maxdateIAS.iloc[0,0])
-  print("Finished finding missing data gaps. It took: ",int(now-then), " seconds")
-  return IASdf
-
-
-def getAdobeTable():
-  
-  maxsql = """
-        SELECT MAX([Date])
         FROM [DM_1406_TRowePrice].[dbo].[DFID052284_DS999622_FTP_IAS_TRP_Extracted]
         """
 
@@ -107,8 +73,42 @@ def getAdobeTable():
   #df['DOB1'] = df['DOB'].dt.strftime('%m/%d/%Y')
   #print("Max date for Table [DFID052284_DS999622_FTP_IAS_TRP_Extracted]: "+ maxdateIAS.to_datetime(datetime))
   print("Max date for Table [DFID052284_DS999622_FTP_IAS_TRP_Extracted]: ", maxdateIAS.iloc[0,0])
-  print("Finished finding missing data gaps. It took: ",int(now-then), " seconds")
+  print("Finished finding missing data gaps. It took: ",int(now-then), " seconds\n")
   return IASdf
+
+
+def getAdobeTable():
+  
+  maxsql_adobe = """
+        SELECT MAX([Day])
+        FROM [DM_1406_TRowePrice].[dbo].[DFID052226_DS999621_Email_Omniture_TRP_US_Extracted]
+        """
+
+  ##  Connecting Adobe Table (DS999622_FTP_IAS_TRP)
+  ##  List out all the missing dates
+  sql_adobe = """
+        SELECT
+        DayInBetween AS missingDate
+        FROM dbo.GetAllDaysInBetween('2019-01-01', 
+	----  Find the Max date in the table/view
+	(SELECT MAX([Day])
+        FROM [DM_1406_TRowePrice].[dbo].[DFID052226_DS999621_Email_Omniture_TRP_US_Extracted])
+	) AS AllDaysInBetween
+	----  END: Find the Max date in the table/view
+        WHERE NOT EXISTS 
+        (SELECT [Visits] FROM [DM_1406_TRowePrice].[dbo].[DFID052226_DS999621_Email_Omniture_TRP_US_Extracted] WHERE [Day] = AllDaysInBetween.DayInBetween)
+         """
+  print("Connected ", Connection.Database)
+  print("Finding Missing data gaps in Table [DFID052226_DS999621_Email_Omniture_TRP_US_Extracted] ...")
+  then = time.time() # Time before the operations start
+  Adobedf = pd.read_sql(sql_adobe, Connection.engine)  # store data frame type of the result
+  now = time.time()  # Time after it finished
+  maxdateAdobe = pd.read_sql(maxsql_adobe, Connection.engine)
+  #df['DOB1'] = df['DOB'].dt.strftime('%m/%d/%Y')
+  #print("Max date for Table [DFID052284_DS999622_FTP_IAS_TRP_Extracted]: "+ maxdateIAS.to_datetime(datetime))
+  print("Max date for Table [DFID052226_DS999621_Email_Omniture_TRP_US_Extracted]: ", maxdateAdobe.iloc[0,0])
+  print("Finished finding missing data gaps. It took: ",int(now-then), " seconds")
+  return Adobedf
 
 
 
@@ -117,6 +117,7 @@ def getAdobeTable():
 def main():
   Connection()
   getIASTable()
+  getAdobeTable()
 
 
 main()
