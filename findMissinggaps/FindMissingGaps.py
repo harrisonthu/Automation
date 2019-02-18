@@ -19,6 +19,7 @@ import pandas as pd
 from sqlalchemy import create_engine
 
 
+
 """
   Function to connect the Server Name
   so that the other function can access and use the connection
@@ -31,7 +32,7 @@ def Connection():
   # Create the connection
   print('Connecting ' + Connection.Database + ' Database ...')
   Connection.engine = create_engine('mssql+pyodbc://' + Connection.UserPwd + '@' + Connection.ServerName + '/' + Connection.Database + "?" + Connection.Driver)
-  print("Connected ", Connection.Database, "!")
+  print("Connected ", Connection.Database, "!\n")
 
 
 """
@@ -69,8 +70,6 @@ def getIASTable():
   IASdf = pd.read_sql(sql, Connection.engine)  # store data frame type of the result
   now = time.time()  # Time after it finished
   maxdateIAS = pd.read_sql(maxsql, Connection.engine)
-  #df['DOB1'] = df['DOB'].dt.strftime('%m/%d/%Y')
-  #print("Max date for Table [DFID052284_DS999622_FTP_IAS_TRP_Extracted]: ",maxdateIAS)
   print("Max date for Table [DFID052284_DS999622_FTP_IAS_TRP_Extracted]: ", maxdateIAS.iloc[0,0])
   print("Finished finding missing data gaps. It took: ",int(now-then), " seconds\n")
   return IASdf
@@ -156,10 +155,19 @@ def main():
   
   Connection()
   getIASTable()
-  print("printing getIASTable\n",getIASTable())
+  print("here is the IAS table printing", getIASTable())
+  if (getIASTable().empty):
+    print("IASTable is emptyyyyy !")
+  else:
+    print("IASTable is NOT emptyyyy ! ")
   getAdobeTable()
-  print("printing getAdobeTable\n",getAdobeTable())
+  print("here is the IAS table printing", getAdobeTable())
+  if (getAdobeTable().empty):
+    print("AdobeTable is emptyy and useless !")
+  else:
+    print("IASTable is NOT emptyyyy ! ")
   getSizmekTable()
-  print("printing getSizmekTable\n",getSizmekTable())
+  os.system("pause")
+  input("Press Enter to terminate the program: ")
   
 main()
