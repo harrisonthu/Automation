@@ -16,6 +16,7 @@ import time
 import os
 import datetime
 import pandas as pd
+import pyodbc
 from sqlalchemy import create_engine
 
 
@@ -65,14 +66,14 @@ def getIASTable():
         WHERE NOT EXISTS 
         (SELECT [adserver id] FROM [DM_1406_TRowePrice].[dbo].[DFID052284_DS999622_FTP_IAS_TRP_Extracted] WHERE [Date] = AllDaysInBetween.DayInBetween)
         """
-  print("Finding Missing data gaps in Table [DFID052284_DS999622_FTP_IAS_TRP_Extracted] ...")
+  #print("Finding Missing data gaps in Table [DFID052284_DS999622_FTP_IAS_TRP_Extracted] ...")
   then = time.time() # Time before the operations start
-  IASdf = pd.read_sql(sql, Connection.engine)  # store data frame type of the result
+  getIASTable.IASdf = pd.read_sql(sql, Connection.engine)  # store data frame type of the result
   now = time.time()  # Time after it finished
   maxdateIAS = pd.read_sql(maxsql, Connection.engine)
-  print("Max date for Table [DFID052284_DS999622_FTP_IAS_TRP_Extracted]: ", maxdateIAS.iloc[0,0])
-  print("Finished finding missing data gaps. It took: ",int(now-then), " seconds\n")
-  return IASdf
+  #print("Max date for Table [DFID052284_DS999622_FTP_IAS_TRP_Extracted]: ", maxdateIAS.iloc[0,0])
+  #print("Finished finding missing data gaps. It took: ",int(now-then), " seconds\n")
+  return getIASTable.IASdf
 
 
 def getAdobeTable():
@@ -100,14 +101,14 @@ def getAdobeTable():
         WHERE NOT EXISTS 
         (SELECT [Visits] FROM [DM_1406_TRowePrice].[dbo].[DFID052226_DS999621_Email_Omniture_TRP_US_Extracted] WHERE [Day] = AllDaysInBetween.DayInBetween)
          """
-  print("Finding Missing data gaps in Table [DFID052226_DS999621_Email_Omniture_TRP_US_Extracted] ...")
+  #print("Finding Missing data gaps in Table [DFID052226_DS999621_Email_Omniture_TRP_US_Extracted] ...")
   then = time.time() # Time before the operations start
-  Adobedf = pd.read_sql(sql_adobe, Connection.engine)  # store data frame type of the result
+  getAdobeTable.Adobedf = pd.read_sql(sql_adobe, Connection.engine)  # store data frame type of the result
   now = time.time()  # Time after it finished
   maxdateAdobe = pd.read_sql(maxsql_adobe, Connection.engine)
-  print("Max date for Table [DFID052226_DS999621_Email_Omniture_TRP_US_Extracted]: ", maxdateAdobe.iloc[0,0])
-  print("Finished finding missing data gaps. It took: ",int(now-then), " seconds\n")
-  return Adobedf
+  #print("Max date for Table [DFID052226_DS999621_Email_Omniture_TRP_US_Extracted]: ", maxdateAdobe.iloc[0,0])
+  #print("Finished finding missing data gaps. It took: ",int(now-then), " seconds\n")
+  return getAdobeTable.Adobedf
 
 
 
@@ -136,37 +137,83 @@ def getSizmekTable():
         WHERE NOT EXISTS 
         (SELECT [AccountID] FROM [DM_1406_TRowePrice].[dbo].[DFID061542_DS020301_Sizmek_Campaign_Report_TRowePrice_Extracted] WHERE [DeliveryDate] = AllDaysInBetween.DayInBetween)
          """
-  print("Finding Missing data gaps in Table [DFID061542_DS020301_Sizmek_Campaign_Report_TRowePrice_Extracted] ...")
+  #print("Finding Missing data gaps in Table [DFID061542_DS020301_Sizmek_Campaign_Report_TRowePrice_Extracted] ...")
   then = time.time() # Time before the operations start
-  Sizmekdf = pd.read_sql(sql_sizmek, Connection.engine)  # store data frame type of the result
+  getSizmekTable.Sizmekdf = pd.read_sql(sql_sizmek, Connection.engine)  # store data frame type of the result
   now = time.time()  # Time after it finished
   maxdateSizmek = pd.read_sql(maxsql_sizmek, Connection.engine)
-  print("Max date for Table [DFID061542_DS020301_Sizmek_Campaign_Report_TRowePrice_Extracted]: ", maxdateSizmek.iloc[0,0])
-  print("Finished finding missing data gaps. It took: ",int(now-then), " seconds")
-  return Sizmekdf
+  #print("Max date for Table [DFID061542_DS020301_Sizmek_Campaign_Report_TRowePrice_Extracted]: ", maxdateSizmek.iloc[0,0])
+  #print("Finished finding missing data gaps. It took: ",int(now-then), " seconds")
+  return getSizmekTable.Sizmekdf
 
 
-def exporting():
-  pass
+
+def testingtable():
+  """
+  TESTING TABLE FOR this script !
+  """
+  
+  maxsql = """
+        SELECT MAX([visitDate])
+        FROM [DM_1406_TRowePrice].[dbo].[Dummy_table__testing_data_missing_han]
+        """
+
+  sql = """
+        SELECT
+        DayInBetween AS missingDate
+        FROM dbo.GetAllDaysInBetween('2019-01-01', 
+	----  Find the Max date in the table/view
+	(SELECT MAX([visitDate])
+        FROM [DM_1406_TRowePrice].[dbo].[Dummy_table__testing_data_missing_han])
+	) AS AllDaysInBetween
+	----  END: Find the Max date in the table/view
+        WHERE NOT EXISTS 
+        (SELECT [visits] FROM [DM_1406_TRowePrice].[dbo].[Dummy_table__testing_data_missing_han] WHERE [visitDate] = AllDaysInBetween.DayInBetween)
+        """
+  #print("Finding Missing data gaps in Table [DFID052284_DS999622_FTP_IAS_TRP_Extracted] ...")
+  then = time.time() # Time before the operations start
+  testingtable.Testingdf = pd.read_sql(sql, Connection.engine)  # store data frame type of the result
+  now = time.time()  # Time after it finished
+  testingtable.maxdateTesting = pd.read_sql(maxsql, Connection.engine)
+  print("Max date for Table [DFID052284_DS999622_FTP_IAS_TRP_Extracted]: ", testingtable.maxdateTesting.iloc[0,0])
+  print("Finished finding missing data gaps. It took: ",int(now-then), " seconds\n")
+  return testingtable.Testingdf
 
 
 
 def main():
-  
   Connection()
   getIASTable()
-  print("here is the IAS table printing", getIASTable())
+  #print("here is the IAS table printing", getIASTable())
+  print("Finding missing data in IAS Table (DS999622_FTP_IAS_TRP) ...")
   if (getIASTable().empty):
-    print("IASTable is emptyyyyy !")
+    print("IAS Table does not have any missing data !\n")
   else:
-    print("IASTable is NOT emptyyyy ! ")
+    print("IAS Table HAS missing data ! \n")
+    print("here is the missing date: \n",getIASTable.IASdf)
+    
+  print("Finding missing data in Adobe Table (DS999621_Email_Omniture_TRP) ...")
   getAdobeTable()
-  print("here is the IAS table printing", getAdobeTable())
+  #print("here is the Adobe table printing", getAdobeTable())
   if (getAdobeTable().empty):
-    print("AdobeTable is emptyy and useless !")
+    print("Adobe Table does not have any missing data !\n")
   else:
-    print("IASTable is NOT emptyyyy ! ")
+    print("Adobe Table HAS missing data ! \n")
+    print("here is the missing date: \n",getAdobeTable.Adobedfs)
+
+  print("Finding mising data in Sizmek Table (DS020301_Sizmek_Campaign_Report) ...")
   getSizmekTable()
+  if (getSizmekTable().empty):
+    print("Sizmek Table does not have any missing data !\n")
+  else:
+    print("Sizmek Table HAS missing data ! \n")
+  testingtable()
+  if (testingtable().empty):
+    print("TESTING Table does not have any missing data !\n")
+  else:
+    print("TESTING Table HAS missing data ! \n")
+    print("here is the missing date: \n",testingtable.Testingdf)
+
   os.system("pause")
   input("Press Enter to terminate the program: ")
   
