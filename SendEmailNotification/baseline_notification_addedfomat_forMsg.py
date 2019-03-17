@@ -1,0 +1,129 @@
+### Author:     Han Thu  	  ###
+### Date:       March 15, 2019  ###
+### Client:      ###
+### Description:
+###     Send email notification for whether Baseline is currently running or not   ###
+
+
+
+#!/usr/bin/env python     ## Set interpreter used to be the one on your environment's $PATH
+#import pyodbc
+import time
+import os
+import datetime
+import calendar
+import pandas as pd
+import pyodbc
+from sqlalchemy import create_engine
+
+### library for sending email notification ##
+import smtplib
+from email import encoders
+from email.mime.base import MIMEBase
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from os.path import basename
+
+
+
+
+
+
+"""
+  Function to connect the Server Name
+  so that the other function can access and use the connection
+"""
+def Connection():
+  Connection.ServerName = "10.2.186.148\SQLINS02"
+  Connection.Database = "DM_1406_TRowePrice"
+  Connection.UserPwd = "DASuser01:DASpassw0rd"
+  Connection.Driver = "driver=SQL Server Native Client 11.0"
+  # Create the connection
+  print('Connecting ' + Connection.Database + ' Database ...')
+  Connection.engine = create_engine('mssql+pyodbc://' + Connection.UserPwd + '@' + Connection.ServerName + '/' + Connection.Database + "?" + Connection.Driver)
+  print("Connected ", Connection.Database, "!\n")
+
+
+
+def checkingBLrunning():
+    maxsql = """
+        SELECT MAX([Date])
+        FROM [DM_1406_TRowePrice].[dbo].[DFID052284_DS999622_FTP_IAS_TRP_Extracted]
+        """
+
+
+
+
+"""
+    Checking data gaps from Jan 01, 2019 from  the table is missing:
+    Retrieving data and add it in 
+"""
+def getIASTable():
+    
+  
+  maxsql = """
+        SELECT MAX([Date])
+        FROM [DM_1406_TRowePrice].[dbo].[DFID052284_DS999622_FTP_IAS_TRP_Extracted]
+        """
+
+  ##  Connecting IAS Table (DS999622_FTP_IAS_TRP)
+  ##  List out all the missing dates
+  sql = """
+        SELECT
+        DayInBetween AS missingDate
+        FROM dbo.GetAllDaysInBetween('2019-01-01', 
+	----  Find the Max date in the table/view
+	(SELECT MAX([Date])
+        FROM [DM_1406_TRowePrice].[dbo].[DFID052284_DS999622_FTP_IAS_TRP_Extracted])
+	) AS AllDaysInBetween
+	----  END: Find the Max date in the table/view
+        WHERE NOT EXISTS 
+        (SELECT [adserver id] FROM [DM_1406_TRowePrice].[dbo].[DFID052284_DS999622_FTP_IAS_TRP_Extracted] WHERE [Date] = AllDaysInBetween.DayInBetween)
+        """
+  #print("Finding Missing data gaps in Table [DFID052284_DS999622_FTP_IAS_TRP_Extracted] ...")
+  getIASTable.then = time.time() # Time before the operations start
+  getIASTable.IASdf = pd.read_sql(sql, Connection.engine)  # store data frame type of the result
+  getIASTable.now = time.time()  # Time after it finished
+  getIASTable.maxdateIAS = pd.read_sql(maxsql, Connection.engine)
+  #print("Max date for Table [DFID052284_DS999622_FTP_IAS_TRP_Extracted]: ", maxdateIAS.iloc[0,0])
+  #print("Finished finding missing data gaps. It took: ",int(getIASTable.now-getIASTable.then), " seconds\n")
+  return getIASTable.IASdf
+
+
+def SendingEmailNotificationForStarting():
+    SendingEmailNotification.server = smtplib.SMTP('smtp.office365.com',587)
+    SendingEmailNotification.server.starttls()
+    SendingEmailNotification.msg = MIMEMultipart()
+    SendingEmailNotification.currenttime = datetime.datetime.now()
+    SendingEmailNotification.message = 'Subject: {}\n\n{}'.format("Notification for whether baseline for " + Connection.Database + " is running or not" , "Baseline is currently running ! " )
+    SendingEmailNotification.msg.attach(MIMEText(SendingEmailNotification.message))
+    SendingEmailNotification.server.login("han.thu@groupm.com","Harrison2k71990!@#$%")
+    SendingEmailNotification.server.sendmail("han.thu@groupm.com", "hanminthu2007@gmail.com", SendingEmailNotification.message)
+    
+
+
+def SendingEmailNotificationForFinishing():
+    SendingEmailNotification.server = smtplib.SMTP('smtp.office365.com',587)
+    SendingEmailNotification.server.starttls()
+    SendingEmailNotification.msg = MIMEMultipart()
+    SendingEmailNotification.currenttime = datetime.datetime.now()
+    SendingEmailNotification.message = 'Subject: {}\n\n{}'.format("Notification for whether baseline for " + Connection.Database + " is running or not" , "Baseline is currently running ! " )
+    SendingEmailNotification.msg.attach(MIMEText(SendingEmailNotification.message))
+    SendingEmailNotification.server.login("han.thu@groupm.com","Harrison2k71990!@#$%")
+    SendingEmailNotification.server.sendmail("han.thu@groupm.com", "hanminthu2007@gmail.com", SendingEmailNotification.message)
+    
+
+
+def main():
+    Connection()
+    SendingEmailNotification()
+
+    
+"""
+Main Function to run all of the functions/methods for this program"
+"""
+main()
+
+
+
+
