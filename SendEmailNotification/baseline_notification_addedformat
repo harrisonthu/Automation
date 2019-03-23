@@ -109,7 +109,7 @@ def SendingEmailNotificationForFinishing():
     SendingEmailNotification.currenttime = datetime.datetime.now()
     SendingEmailNotification.message = 'Subject: {}\n\n{}'.format("Notification for whether baseline for " + Connection.Database + " is running or not" , "Baseline is currently running ! " )
     SendingEmailNotification.msg.attach(MIMEText(SendingEmailNotification.message))
-    SendingEmailNotification.server.login("han.thu@groupm.com","Harrison2k71990!@#$%")
+    SendingEmailNotification.server.login("han.thu@groupm.com","")
     SendingEmailNotification.server.sendmail("han.thu@groupm.com", "hanminthu2007@gmail.com", SendingEmailNotification.message)
     
 
