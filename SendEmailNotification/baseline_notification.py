@@ -71,7 +71,7 @@ def main():
   msg = MIMEMultipart()
   message = 'Subject: {}\n\n{}'.format("This is Subject", "This is body")
   msg.attach(MIMEText(message))
-  server.login("han.thu@groupm.com","Harrison2k71990!@#$%")
+  server.login("han.thu@groupm.com","")
   server.sendmail("han.thu@groupm.com", "hanminthu2007@gmail.com", message)
     
 
