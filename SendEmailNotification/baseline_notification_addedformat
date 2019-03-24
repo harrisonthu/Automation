@@ -40,10 +40,11 @@ class Mailer:
         to = SEPARATOR.join(recipients) if type(recipients) is list else recipients
 
         msg = MIMEMultipart('alternative')
-        msg['Subject'] = "This is my subject on the msg"
+        msg['Subject'] = "Baseline Status"
         msg['From'] = self.gmail_accnt
         msg['To'] = str(recipients)
-        msg.attach(MIMEText("this is the body", 'html'))
+        currenttime = datetime.datetime.now().strftime("%H:%M:%S")
+        msg.attach(MIMEText("Baseline is currently running now at " + str(currenttime) + " ! ", 'html'))
 
         if attachment:
             part = MIMEBase('application', "octet-stream")
@@ -70,24 +71,6 @@ def Testing():
   recipients = ['hanminthu2007@gmail.com', 'han.thu@groupm.com']
   SendingEmailNotificationForStarting.msg = MIMEMultipart()
   a.send_email(recipients,"this is my subject", "This is my body !")
-
-
-"""
-  message = 'Subject: {}\n\n{}'.format("Notification for status of baseline for " + Connection.Database , "Baseline is currently running ! " )
-  msg.attach(MIMEText(SendingEmailNotificationForStarting.message))
-  SendingEmailNotificationForStarting.message = 'Subject: {}\n\n{}'.format("Notification for status of baseline for " + Connection.Database , "Baseline is currently running ! " )
-  SendingEmailNotificationForStarting.msg.attach(MIMEText(SendingEmailNotificationForStarting.message))
-
-      SendingEmailNotificationForStarting.server = smtplib.SMTP('smtp.gmail.com',587)
-      SendingEmailNotificationForStarting.server.starttls()
-      SendingEmailNotificationForStarting.msg = MIMEMultipart()
-      #SendingEmailNotificationForStarting.currenttime = datetime.datetime.now()
-      SendingEmailNotificationForStarting.message = 'Subject: {}\n\n{}'.format("Notification for status of baseline for " + Connection.Database , "Baseline is currently running ! " )
-      SendingEmailNotificationForStarting.msg.attach(MIMEText(SendingEmailNotificationForStarting.message))
-      SendingEmailNotificationForStarting.server.login("sonyadasteam@gmail.com","youngmulababy")
-      SendingEmailNotificationForStarting.server.sendmail("sonyadasteam@gmail.com", "han.thu@groupm.com", SendingEmailNotificationForStarting.message)
-      SendingEmailNotificationForStarting.server.close()
- """
 
 
 
