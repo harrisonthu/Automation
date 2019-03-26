@@ -66,9 +66,12 @@ class Mailer:
             print("Failed to send the email with this error:\n", err)
 
 
+"""
+  Testing Function
+"""
 def Testing():
   a = Mailer()
-  recipients = ['hanminthu2007@gmail.com', 'han.thu@groupm.com']
+  recipients = ['hanminthu2007@gmail.com', 'han.thu@groupm.com'] ## add recipients emails 'bhumika.bhandari@groupm.com'
   SendingEmailNotificationForStarting.msg = MIMEMultipart()
   a.send_email(recipients,"this is my subject", "This is my body !")
 
@@ -93,20 +96,56 @@ def Connection():
 """
   Function to Check the status of baseline
   Return:
-      0 : if baseline is complete
+      0 : if baseline is complete/not running
       1 : if baseline is still running
+      2:  if baseline is stuck
 """
 def StatusBaseline():
-    
-  ## SQL script to check if the the baseilne is currently running or not
-  sql = """
 
+    ## SQL script to check if the the baseilne is currently running or not
+    sql = """
+        declare @Max_Date date, @row_count int
+        select @Max_Date = max(run_date) from baseline_log_20190325
+            SELECT [Flag_status]
+            from
+            (
+            select Step, 
+            case when Duration is null then 1 else 0 end as Flag,
+            -- to check the duration if it is running for more than 3 hours
+            case 
+                    when Duration is null 
+                            THEN
+                            CASE 
+                            WHEN run_date = convert(date,getdate())
+                            AND CAST(CAST(DATEADD(second,1,CURRENT_TIMESTAMP) AS DATETIME) - CAST(Time_Started AS DATETIME) AS TIME) <= '03:00:00'			
+                                    THEN 'In Progress'
+                            ELSE 'Stuck' END
+            ELSE 'Completed' end as [Status],
+            case 
+            when Duration is null 
+                    THEN
+                            CASE 
+                            WHEN run_date = convert(date,getdate())
+                            AND CAST(CAST(DATEADD(second,1,CURRENT_TIMESTAMP) AS DATETIME) - CAST(Time_Started AS DATETIME) AS TIME) <= '03:00:00'			
+                                    THEN 1
+                            ELSE 2 END
+            ELSE 0 end as Flag_Status
+            from baseline_log 
+            where run_date = @Max_Date
+            and Step = 'Complete Baseline Script')  aa
         """
-  if int(sql) == 0:
-    return 0
-  else:
-    return 1
-  return -1
+
+    sqldata = pd.read_sql(sql, Connection.engine)  # store dataframe type
+    sqldata['Flag_status'] = pd.to_numeric(sqldata['Flag_status'],downcast = 'integer')
+    #sqldata['Flag_status'] = sqldata['Flag_status'].to_numeric()
+    result  = sqldata.loc[0,'Flag_status']
+    if int(result) == 0: ## Baseline is complete
+        return 0
+    elif int(result) ==1:
+        return 1
+    elif int(result) == 2:
+        return 2
+    return -1
 
 
 def SendingEmailNotificationForStarting():
@@ -125,29 +164,16 @@ def SendingEmailNotificationForStarting():
       print ("Something went wrong !")
 
 
-def SendingEmailNotificationForFinishing():
-    SendingEmailNotificationForFinishing.server = smtplib.SMTP('smtp.office365.com',587)
-    SendingEmailNotificationForFinishing.server.starttls()
-    SendingEmailNotificationForFinishing.msg = MIMEMultipart()
-    SendingEmailNotificationForFinishing.currenttime = datetime.datetime.now()
-    SendingEmailNotificationForFinishing.message = 'Subject: {}\n\n{}'.format("Notification for whether baseline for " + Connection.Database + " is running or not" , "Baseline is currently running ! " )
-    SendingEmailNotificationForFinishing.msg.attach(MIMEText(SendingEmailNotification.message))
-    SendingEmailNotificationForFinishing.server.login("han.thu@groupm.com","Harrison2k71990!@#$%")
-    SendingEmailNotificationForFinishing.server.sendmail("han.thu@groupm.com", "hanminthu2007@gmail.com", SendingEmailNotification.message)
-    
-
-
 def main():
+    ##TODO: check if baseline is running or not
     Connection()
     Testing()
-    #SendingEmailNotificationForStarting()
+    print(StatusBaseline())
+    
 
     
 """
 Main Function to run all of the functions/methods for this program"
 """
 main()
-
-
-
 
