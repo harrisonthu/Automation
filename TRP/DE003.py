@@ -24,8 +24,6 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from os.path import basename
 
-
-
 """
   Function to connect the Server Name
   so that the other function can access and use the connection
