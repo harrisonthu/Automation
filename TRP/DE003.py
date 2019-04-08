@@ -24,6 +24,8 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from os.path import basename
 
+
+
 """
   Function to connect the Server Name
   so that the other function can access and use the connection
@@ -46,45 +48,39 @@ def Connection():
 
 """
 Check Status of DE003
-      1. Check condition:
-            if 0, you can run
-            if 1, shows the client that DE003 is running
-      2. Send email function
+
 """
 def DE003status():
-    sql_create_log = """
+  sql_create_log = """
         EXEC [dbo].[Han_DE003status]
-    """
+        """
     
-    sql_status = """
+  sql_status = """
           SELECT [Flag]
           FROM [DM_1406_TRowePrice].[dbo].[baseline_Flag]
           WHERE [Step] LIKE '%COMPLETE%'
-        """
+          """
 
-    try:
-        createlog = pd.read_sql(sql_create_log, Connection.engine)
-        status = pd.read_sql(sql_status,Connection.engine)
-    except Exception as err:
-        print("Failed to connect with this error:\n", err)
+  try:
+    createlog = pd.read_sql(sql_create_log, Connection.engine)
+    status = pd.read_sql(sql_status,Connection.engine)
+  except Exception as err:
+    print("Failed to connect with this error:\n", err)
 
-
-    print("Look at meeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee") 
-    print(status.loc[0,'Flag'])
-    #if (status.iloc[0,0] == 0)
-    #print("Max date for Table [DFID052284_DS999622_FTP_IAS_TRP_Extracted]: ", maxdateIAS.iloc[0,0])
-
-
-
-
-
+  DE003status.res = status.loc[0,'Flag']
+  #### Check whether u should run DE003 or not  ####
+  if int(DE003status.res)== 0:
+    return 0
+  elif int(DE003status.res)  == 1:
+    return 1
+  else:
+    return True
 
 
 
 def DE003run():
   
-  sql_spone = """
-        EXEC [dbo].[Han_Testing]
+  sql_spone = """  EXEC [dbo].[Han_Testing]
         """
   sql_sptwo = """
         EXEC [dbo].[Han_Testing_v2]
@@ -111,13 +107,7 @@ def DE003run():
   return True
 
 
-def main():
-    Connection()
-    print("not here")
-    DE003status()
-    print("I am here")
-    DE003run()
-
+"""
 
 
 SEPARATOR = ', '
@@ -168,15 +158,17 @@ class Mailer:
 
 
 """
-  Testing Function
+
 """
+  Testing Function
+
 def Testing():
   a = Mailer()
   recipients = [ 'han.thu@groupm.com'] ## add recipients emails 'bhumika.bhandari@groupm.com'
   SendingEmailNotificationForStarting.msg = MIMEMultipart()
   a.send_email(recipients,"this is my subject", "This is my body !")
 
-
+"""
 
 
 
@@ -187,21 +179,39 @@ def SendingEmailNotificationForStarting():
       SendingEmailNotificationForStarting.server.starttls()
       SendingEmailNotificationForStarting.msg = MIMEMultipart()
       #SendingEmailNotificationForStarting.currenttime = datetime.datetime.now()
-      SendingEmailNotificationForStarting.message = 'Subject: {}\n\n{}'.format("Notification for status of baseline for " + Connection.Database , "Baseline is currently running ! " )
+      recipients = [ 'han.thu@groupm.com','hanminthu2007@gmail.com'] ## add recipients emails 'bhumika.bhandari@groupm.com'
+      SendingEmailNotificationForStarting.message = 'Subject: {}\n\n{}'.format("Notification for status of DE003 for " + Connection.Database , "DE003 is just complete running ! " )
       SendingEmailNotificationForStarting.msg.attach(MIMEText(SendingEmailNotificationForStarting.message))
       SendingEmailNotificationForStarting.server.login("sonyadasteam@gmail.com","DASpassw0rd")
-      SendingEmailNotificationForStarting.server.sendmail("sonyadasteam@gmail.com", "han.thu@groupm.com", SendingEmailNotificationForStarting.message)
+      SendingEmailNotificationForStarting.server.sendmail("sonyadasteam@gmail.com", recipients, SendingEmailNotificationForStarting.message)
       SendingEmailNotificationForStarting.server.close()
     except:
-      print ("Something went wrong !")
+      print ("Something went wrong with this error ! \n",err)
 
+
+def main():
+    Connection()
+    DEresult = DE003status()
+    useryeslist = ["yes","y","ye","Y"]
+    ###   DE003 is not currently running !  ###
+    if int(DEresult) == 0:
+      print("DE003 is not currently running ! ")
+      userinput = input("Do you want to run DE003 now? 'Y'(or) 'Yes' to run: ").lower().strip()
+      if(userinput in useryeslist):
+        DE003run()
+        SendingEmailNotificationForStarting()
+      else:
+        print("You can eixt the application now !\n")
+
+    ###   DE003 is currently running !  ###
+    elif int(DEresult) ==1:
+      print("DE003 is currently running now. Please try again running later")
+    os.system("pause")
+    input("Press Enter to terminate the program: ")
+    
 
     
 """
 Main Function to run all of the functions/methods for this program"
 """
 main()
-
-
-
-
