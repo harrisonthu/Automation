@@ -1,0 +1,171 @@
+-- how to convert Azure UTC time to EST
+
+SELECT DateOrdered, CONVERT(DATETIME,DateOrdered AT TIME ZONE 'UTC' AT TIME ZONE 'Eastern Standard Time')
+as 'DateOrderedEST', Product FROM dbo.Orders 
+
+~~~~~~ to find where table is being used in the database~~~~~~~
+
+
+SELECT DISTINCT so.name
+FROM syscomments sc
+INNER JOIN sysobjects so ON sc.id=so.id
+WHERE sc.TEXT LIKE '%your_table_name%'
+
+
+-- to find where a particular columnis being used
+
+DECLARE @SCHEMA_NAME VARCHAR(100) = 'dbo';
+DECLARE @OBJECT_NAME  VARCHAR(100) = 'column_name';
+
+SELECT
+    sys.objects.object_id,
+    sys.schemas.name AS [Schema], 
+    sys.objects.name AS Object_Name, 
+    sys.objects.type_desc AS [Type]
+FROM sys.sql_modules (NOLOCK) 
+INNER JOIN sys.objects (NOLOCK) ON sys.sql_modules.object_id = sys.objects.object_id 
+INNER JOIN sys.schemas (NOLOCK) ON sys.objects.schema_id = sys.schemas.schema_id
+--WHERE
+--    (
+--           '#' + sys.sql_modules.definition + '#' COLLATE SQL_Latin1_General_CP1_CI_AS LIKE '%[^a-z_]'+@SCHEMA_NAME+'.'+@OBJECT_NAME+'[^a-z_]%' ESCAPE '\'
+--        OR '#' + sys.sql_modules.definition + '#' COLLATE SQL_Latin1_General_CP1_CI_AS LIKE '%[^a-z_]\['+@SCHEMA_NAME+'\].'+@OBJECT_NAME+'[^a-z_]%' ESCAPE '\'
+--        OR '#' + sys.sql_modules.definition + '#' COLLATE SQL_Latin1_General_CP1_CI_AS LIKE '%[^a-z_]'+@SCHEMA_NAME+'.\['+@OBJECT_NAME+'\][^a-z_]%' ESCAPE '\'
+--        OR '#' + sys.sql_modules.definition + '#' COLLATE SQL_Latin1_General_CP1_CI_AS LIKE '%[^a-z_]\['+@SCHEMA_NAME+'\].\['+@OBJECT_NAME+'\][^a-z_]%' ESCAPE '\'
+--    )
+ORDER BY sys.objects.type_desc, sys.schemas.name, sys.objects.name
+
+----works in Azure as of 10/16/2019- Added by PP
+SELECT
+  sys.columns.name AS ColumnName,
+  tables.name AS TableName
+FROM
+  sys.columns
+JOIN sys.tables ON
+  sys.columns.object_id = tables.object_id
+WHERE
+  sys.columns.name = 'ColumnName'
+-------------------------------
+
+-- List out all missing dates in the views/table.
+Need the function: "GetAllDaysInBetween" (see under DM_1406_TRowePrice)
+
+SELECT
+    DayInBetween AS missingDate
+FROM [dbo].[GetAllDaysInBetween]('2018-11-03', '2018-01-01') AS AllDaysInBetween
+WHERE NOT EXISTS 
+    (SELECT [Campaign Name] FROM [All_Data_Sources_All_Channels_bkp_952018] WHERE [Date] = AllDaysInBetween.DayInBetween)
+
+
+------------------------------------- pivoting rows into columns Example on Facebook Custom report --------------------------------------------
+
+
+IF Object_id('DS092207_TEMP1') IS NOT NULL 
+  DROP TABLE DS092207_TEMP1 
+
+IF Object_id('DS092207_TEMP') IS NOT NULL 
+  DROP TABLE DS092207_TEMP 
+
+SELECT [account_id], 
+       [account_name], 
+       [campaign_id], 
+       [campaign_name], 
+       [adset_id], 
+       [adset_name], 
+       [ad_id], 
+       [ad_name], 
+       [start_date], 
+       [publisher_platform], 
+       [metric_name], 
+       [action_type], 
+       Cast([value] AS FLOAT)      [value], 
+       Iif([metric_name] = 'actions', '', [metric_name]) 
+       + Isnull([action_type], '') AS [COL] 
+INTO   DS092207_TEMP1 
+FROM   [dbo].[DFID066716_DS092207_Facebook_Ads_Custom_Report_TRowePrice_Extracted] 
+WHERE  [metric_name] IN ( 'impressions', 'spend', 'video_p100_watched_actions' ) 
+        OR ( [metric_name] = 'actions' 
+             AND [action_type] = 'link_click' ) 
+        OR ( [metric_name] = 'actions' 
+             AND [action_type] = 'landing_page_view' ) 
+        OR ( [metric_name] = 'actions' 
+             AND [action_type] = 'video_view' ) 
+
+--   select * from DS092207_TEMP1 
+DECLARE @cols        AS NVARCHAR(MAX), 
+        @cols_Rename AS NVARCHAR(MAX), 
+        @query       AS NVARCHAR(MAX) 
+
+SELECT @cols = Stuff((SELECT DISTINCT ',' + Quotename([COL]) 
+                      FROM   DS092207_TEMP1 
+                      FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 1, '') 
+
+--PRINT @cols;  
+SET @query = N'SELECT [account_id] ,[account_name] ,[campaign_id] ,[campaign_name] ,[adset_id] ,[adset_name] ,[ad_id] ,[ad_name] , [start_date] ,[publisher_platform] , ' 
+             + @cols 
+             + N' into DS092207_TEMP  from  (select [account_id] ,[account_name] ,[campaign_id] ,[campaign_name] ,[adset_id] ,  [adset_name] ,[ad_id] ,[ad_name] ,[start_date] ,[publisher_platform] , [COL] ,[Value] as [Value] from DS092207_TEMP1   ) x               pivot                 (sum([value]) for [COL] in (' 
+             + @cols + ')             ) p ' 
+
+--print @query   
+EXEC Sp_executesql 
+  @query; 
+
+-- SELECT * FROM DS092207_TEMP 
+SELECT [account_id], 
+       [account_name], 
+       [campaign_id], 
+       [campaign_name], 
+       [adset_id], 
+       [adset_name], 
+       [ad_id], 
+       [ad_name], 
+       [start_date], 
+       [publisher_platform], 
+       [impressions], 
+       [landing_page_view], 
+       [link_click], 
+       [video_p100_watched_actionsvideo_view] AS video_completions, 
+       [spend], 
+       [video_view] 
+INTO   #DT 
+FROM   DS092207_TEMP 
+
+----------------------------------- end pivoting rows into columns ----------------------------------------
+
+
+
+
+---- UTC TO EST DATE CONVERSION FOR BASELINE 
+
+SELECT GETDATE(), 
+CONVERT(DATETIME, GETDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Eastern Standard Time') ,
+convert(varchar(10),CONVERT(DATETIME, GETDATE() AT TIME ZONE 'UTC' AT TIME ZONE 'Eastern Standard Time') 
+,108) as 'Datetime_EST' 
+
+-- Baseline log on Azure
+
+SELECT TOP (1000) [SPID]
+      ,[Execution_Type]
+      ,[Run_Date]
+      ,[Step]
+      ,[Time_Started]
+      ,[Time_Ended]
+      ,[Duration]
+	  ,convert(varchar(10),CONVERT(DATETIME, getdate() AT TIME ZONE 'UTC' AT TIME ZONE 'Eastern Standard Time') ,108)
+	  as 'Datetime_EST' 
+  FROM [dbo].[Baseline_log] 
+  where run_date='2018-09-27'order by run_date,time_ended desc
+
+
+--  List out all the days in a week, starting from Monday as the first day of the week
+--  Normally on calendar, it shows Sunday as the first day of the week.
+SET Datefirst 1;
+SELECT [Start Date],
+Cast(Dateadd(wk, Datediff(wk, 0 , [Start Date]),0) AS DATE) AS Monday_1,
+Cast( DATEADD(DD, 1 - DATEPART(DW, [Start Date]), [Start Date]) AS DATE) Monday_2,
+Sum([Impressions]) impressions
+from [View013_Social_Feed_Combined_Church_Dwight]
+where [Product Name] = 'oxiclean' and
+ [Start Date] BETWEEN '2018-02-01 00:00:00' AND '2018-03-05 00:00:00'
+ group by [Start Date]
+
+
