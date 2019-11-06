@@ -11,13 +11,13 @@
 
 
 #!/usr/bin/env python     ## Set interpreter used to be the one on your environment's $PATH
-#import pyodbc
+import pyodbc
 import time
 import os
 import datetime
 import pandas as pd
 import pyodbc
-#from sqlalchemy import create_engine
+from sqlalchemy import create_engine
 
 
 
@@ -26,9 +26,9 @@ import pyodbc
   so that the other function can access and use the connection
 """
 def Connection():
-  Connection.ServerName = "10.2.186.148\SQLINS02"
-  Connection.Database = "DM_1406_TRowePrice"
-  Connection.UserPwd = "DASuser01:DASpassw0rd"
+  Connection.ServerName = "sqlsv-wm-us-prod.database.windows.net"
+  Connection.Database = "SQLDB_TRP_US"
+  Connection.UserPwd = "HThu:Passw0rd"
   Connection.Driver = "driver=SQL Server Native Client 11.0"
   # Create the connection
   print('Connecting ' + Connection.Database + ' Database ...')
@@ -231,6 +231,7 @@ def main():
   print("\n")
   os.system("pause")
   input("Press Enter to terminate the program: ")
+
 
 
 main()
