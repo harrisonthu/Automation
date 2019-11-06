@@ -1,0 +1,49 @@
+/****** Object:  UserDefinedFunction [dbo].[GetAllDaysInBetween]   
+Script Date: 11/6/2019 4:00:22 PM ******/
+
+
+/*
+  This should be created under any database/client's Table-valued functions 
+  which will process and give you the result of any data missing based on date.
+*/
+
+
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+
+-- =============================================
+-- Author:		<Author,,Name>
+-- Create date: <Create Date,,>
+-- Description:	<Description,,>
+-- =============================================
+CREATE FUNCTION [dbo].[GetAllDaysInBetween](@FirstDay Smalldatetime, @LastDay Smalldatetime)
+RETURNS @retDays TABLE 
+(
+    DayInBetween Smalldatetime
+)
+AS 
+BEGIN
+    DECLARE @currentDay Smalldatetime
+    SELECT @currentDay = @FirstDay
+
+    WHILE @currentDay <= @LastDay
+    BEGIN
+
+        INSERT @retDays (DayInBetween)
+            SELECT @currentDay
+
+        SELECT @currentDay = DATEADD(DAY, 1, @currentDay)
+    END 
+
+    RETURN
+END
+
+
+
+GO
+
+
