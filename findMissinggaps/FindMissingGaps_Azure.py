@@ -11,7 +11,8 @@
 
 
 #!/usr/bin/env python     ## Set interpreter used to be the one on your environment's $PATH
-import pyodbc
+#import pyodbc
+import pypyodbc
 import time
 import os
 import datetime
@@ -49,23 +50,23 @@ def getIASTable():
   
   maxsql = """
         SELECT MAX([Date])
-        FROM [DM_1406_TRowePrice].[dbo].[DFID052284_DS999622_FTP_IAS_TRP_Extracted]
+        FROM [dbo].[DFID052284_DS999622_FTP_IAS_TRP_Extracted]
         """
 
   ##  Connecting IAS Table (DS999622_FTP_IAS_TRP)
   ##  List out all the missing dates
   sql = """
-        SELECT
+       SELECT
         DayInBetween AS missingDate
         FROM dbo.GetAllDaysInBetween('2019-01-01', 
 	----  Find the Max date in the table/view
 	(SELECT MAX([Date])
-        FROM [DM_1406_TRowePrice].[dbo].[DFID052284_DS999622_FTP_IAS_TRP_Extracted])
+       FROM [dbo].[DFID052284_DS999622_FTP_IAS_TRP_Extracted])
 	) AS AllDaysInBetween
 	----  END: Find the Max date in the table/view
         WHERE NOT EXISTS 
-        (SELECT [adserver id] FROM [DM_1406_TRowePrice].[dbo].[DFID052284_DS999622_FTP_IAS_TRP_Extracted] WHERE [Date] = AllDaysInBetween.DayInBetween)
-        """
+        (SELECT [adserver id] FROM [dbo].[DFID052284_DS999622_FTP_IAS_TRP_Extracted] WHERE [Date] = AllDaysInBetween.DayInBetween)
+         """
   #print("Finding Missing data gaps in Table [DFID052284_DS999622_FTP_IAS_TRP_Extracted] ...")
   getIASTable.then = time.time() # Time before the operations start
   getIASTable.IASdf = pd.read_sql(sql, Connection.engine)  # store data frame type of the result
@@ -84,7 +85,7 @@ def getAdobeTable():
   """
   maxsql_adobe ="""
         SELECT MAX([Day])
-        FROM [DM_1406_TRowePrice].[dbo].[DFID052226_DS999621_Email_Omniture_TRP_US_Extracted]
+        FROM [dbo].[DFID052226_DS999621_Email_Omniture_TRP_US_Extracted]
         """
 
   ##  Connecting Adobe Table (DS999622_FTP_IAS_TRP)
@@ -92,15 +93,15 @@ def getAdobeTable():
   sql_adobe = """
         SELECT
         DayInBetween AS missingDate
-        FROM dbo.GetAllDaysInBetween('2019-01-01', 
+        FROM dbo.GetAllDaysInBetween('2019-10-01', 
 	----  Find the Max date in the table/view
 	(SELECT MAX([Day])
-        FROM [DM_1406_TRowePrice].[dbo].[DFID052226_DS999621_Email_Omniture_TRP_US_Extracted])
+        FROM [dbo].[DFID052226_DS999621_Email_Omniture_TRP_US_Extracted])
 	) AS AllDaysInBetween
 	----  END: Find the Max date in the table/view
         WHERE NOT EXISTS 
-        (SELECT [Visits] FROM [DM_1406_TRowePrice].[dbo].[DFID052226_DS999621_Email_Omniture_TRP_US_Extracted] WHERE [Day] = AllDaysInBetween.DayInBetween)
-         """
+        (SELECT [Visits] FROM [dbo].[DFID052226_DS999621_Email_Omniture_TRP_US_Extracted] WHERE [Day] = AllDaysInBetween.DayInBetween)
+        """
   #print("Finding Missing data gaps in Table [DFID052226_DS999621_Email_Omniture_TRP_US_Extracted] ...")
   getAdobeTable.then = time.time() # Time before the operations start
   getAdobeTable.Adobedf = pd.read_sql(sql_adobe, Connection.engine)  # store data frame type of the result
@@ -119,24 +120,24 @@ def getSizmekTable():
       - is there any missing date from the table 
   """
   maxsql_sizmek ="""
-        SELECT MAX([DeliveryDate])
-        FROM [DM_1406_TRowePrice].[dbo].[DFID061542_DS020301_Sizmek_Campaign_Report_TRowePrice_Extracted]
+          SELECT MAX([DeliveryDate])
+          FROM [dbo].[DFID061542_DS020301_Sizmek_Campaign_Report_TRowePrice_Extracted]
         """
 
   ##  Connecting Sizmek Table (DS020301_Sizmek_Campaign_Report)
   ##  List out all the missing dates
   sql_sizmek = """
-        SELECT
+          SELECT
         DayInBetween AS missingDate
         FROM dbo.GetAllDaysInBetween('2019-01-01', 
 	----  Find the Max date in the table/view
 	(SELECT MAX([DeliveryDate])
-        FROM [DM_1406_TRowePrice].[dbo].[DFID061542_DS020301_Sizmek_Campaign_Report_TRowePrice_Extracted])
+        FROM [dbo].[DFID061542_DS020301_Sizmek_Campaign_Report_TRowePrice_Extracted])
 	) AS AllDaysInBetween
 	----  END: Find the Max date in the table/view
         WHERE NOT EXISTS 
-        (SELECT [AccountID] FROM [DM_1406_TRowePrice].[dbo].[DFID061542_DS020301_Sizmek_Campaign_Report_TRowePrice_Extracted] WHERE [DeliveryDate] = AllDaysInBetween.DayInBetween)
-         """
+        (SELECT [AccountID] FROM [dbo].[DFID061542_DS020301_Sizmek_Campaign_Report_TRowePrice_Extracted] WHERE [DeliveryDate] = AllDaysInBetween.DayInBetween)
+        """
   #print("Finding Missing data gaps in Table [DFID061542_DS020301_Sizmek_Campaign_Report_TRowePrice_Extracted] ...")
   getSizmekTable.then = time.time() # Time before the operations start
   getSizmekTable.Sizmekdf = pd.read_sql(sql_sizmek, Connection.engine)  # store data frame type of the result
@@ -234,5 +235,10 @@ def main():
 
 
 
+
+
 main()
+
+
+
 
