@@ -3,6 +3,53 @@
 SELECT DateOrdered, CONVERT(DATETIME,DateOrdered AT TIME ZONE 'UTC' AT TIME ZONE 'Eastern Standard Time')
 as 'DateOrderedEST', Product FROM dbo.Orders 
 
+-------------------------------- how to remove duplicate rows ----------------------
+
+---------------- dedup campaign
+
+;WITH CTE_Duplicate AS
+(
+SELECT *,ROW_NUMBER() OVER (PARTITION BY deliverydate, campaignid, placementid, adid, acquireid ORDER BY deliverydate, campaignid, placementid, adid) AS Rno 
+FROM [dbo].[DFID061542_DS020301_Sizmek_Campaign_Report_TRowePrice_Extracted]
+--where AcquireID = 10005333 --order by deliverydate, campaignid, placementid, adid, acquireid
+)
+--select * from CTE_Duplicate WHERE Rno > 1
+DELETE FROM CTE_Duplicate WHERE Rno > 1
+
+-- 354
+select deliverydate, campaignid, placementid, adid,COUNT(*)
+FROM [dbo].[DFID061542_DS020301_Sizmek_Campaign_Report_TRowePrice_Extracted]
+group by deliverydate, campaignid, placementid, adid
+having COUNT(*) > 1
+
+---------------------- dedup conversions
+11118
+;WITH CTE_Duplicate AS
+(
+SELECT *,ROW_NUMBER() OVER (PARTITION BY ConversionDate, campaignid, placementid, adid, [ActivityTagID] ORDER BY ConversionDate, campaignid, placementid, adid) AS Rno 
+FROM [dbo].[DFID061544_DS020302_Sizmek_Conversion_Report_TRowePrice_Extracted]
+--where AcquireID = 10005333 --order by deliverydate, campaignid, placementid, adid, acquireid
+)
+--select * from CTE_Duplicate WHERE Rno > 1
+DELETE FROM CTE_Duplicate WHERE Rno > 1
+
+-- 1118
+select ConversionDate, campaignid, placementid, adid,[ActivityTagID], COUNT(*)
+FROM [dbo].[DFID061544_DS020302_Sizmek_Conversion_Report_TRowePrice_Extracted]
+group by ConversionDate, campaignid, placementid, adid, [ActivityTagID]
+having COUNT(*) > 1
+
+
+------------------------------- general syntax to remove duplicate rows ----------------------
+
+;WITH numbered AS (
+    SELECT ROW_NUMBER() OVER(PARTITION BY [dupe-column-list] ORDER BY [dupe-column-list]) AS _dupe_num 
+    FROM [table-name] 
+    WHERE 1=1 -- any where clause if required
+)
+DELETE FROM numbered WHERE _dupe_num > 1;
+
+
 ~~~~~~ to find where table is being used in the database~~~~~~~
 
 
@@ -11,6 +58,20 @@ FROM syscomments sc
 INNER JOIN sysobjects so ON sc.id=so.id
 WHERE sc.TEXT LIKE '%your_table_name%'
 
+
+-- to find specific column being used
+
+exec Find '%column name%'; 
+
+
+
+-- to find specific column being used in Stored Procedure ONLY
+
+SELECT DISTINCT OBJECT_NAME(OBJECT_ID),
+object_definition(OBJECT_ID)
+FROM sys.Procedures
+WHERE object_definition(OBJECT_ID) LIKE '%' + 'CreatedDate' + '%'
+GO
 
 -- to find where a particular columnis being used
 
@@ -100,10 +161,13 @@ SELECT @cols = Stuff((SELECT DISTINCT ',' + Quotename([COL])
                       FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 1, '') 
 
 --PRINT @cols;  
-SET @query = N'SELECT [account_id] ,[account_name] ,[campaign_id] ,[campaign_name] ,[adset_id] ,[adset_name] ,[ad_id] ,[ad_name] , [start_date] ,[publisher_platform] , ' 
+SET @query = N'SELECT [account_id] ,[account_name] ,[campaign_id] ,[campaign_name] ,[adset_id] ,
+[adset_name] ,[ad_id] ,[ad_name] , [start_date] ,[publisher_platform] , ' 
              + @cols 
-             + N' into DS092207_TEMP  from  (select [account_id] ,[account_name] ,[campaign_id] ,[campaign_name] ,[adset_id] ,  [adset_name] ,[ad_id] ,[ad_name] ,[start_date] ,[publisher_platform] , [COL] ,[Value] as [Value] from DS092207_TEMP1   ) x               pivot                 (sum([value]) for [COL] in (' 
-             + @cols + ')             ) p ' 
+             + N' into DS092207_TEMP  from  (select [account_id] ,[account_name] ,[campaign_id] ,
+[campaign_name] ,[adset_id] ,  [adset_name] ,[ad_id] ,[ad_name] ,[start_date] ,[publisher_platform] , 
+[COL] ,[Value] as [Value] from DS092207_TEMP1   ) x               
+pivot                 (sum([value]) for [COL] in (' + @cols + ')             ) p ' 
 
 --print @query   
 EXEC Sp_executesql 
@@ -168,4 +232,21 @@ where [Product Name] = 'oxiclean' and
  [Start Date] BETWEEN '2018-02-01 00:00:00' AND '2018-03-05 00:00:00'
  group by [Start Date]
 
+-----------------------------------------------------------------------------
+The query below lists the databases in Azure SQL Database.
 
+select [name] as database_name,
+    database_id,
+    create_date
+from sys.databases
+order by name
+
+The query below lists all tables in an Azure SQL Database.
+
+select schema_name(t.schema_id) as schema_name,
+       t.name as table_name,
+       t.create_date,
+       t.modify_date
+from sys.tables t
+order by schema_name,
+         table_name;
