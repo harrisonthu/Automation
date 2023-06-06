@@ -8,7 +8,7 @@
 ###      - (Sizmek)   [DFID066577_DS020307_Sizmek_Device_Video_Report_Chevron_Extracted]
 ### 
 
-
+ 
 #!/usr/bin/env python     ## Set interpreter used to be the one on your environment's $PATH
 import pyodbc
 import time
