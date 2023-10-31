@@ -7,7 +7,7 @@
 ###      - (Innovid)  [DFID066576_DS999923_Email_Innovid_Device_Metadata_Report_Chevron_Extracted]
 ###      - (Sizmek)   [DFID066577_DS020307_Sizmek_Device_Video_Report_Chevron_Extracted]
 ###  
-
+ 
 
 #!/usr/bin/env python     ## Set interpreter used to be the one on your environment's $PATH
 import pyodbc
