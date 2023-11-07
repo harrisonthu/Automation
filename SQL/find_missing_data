@@ -4,7 +4,7 @@
     WHERE NOT EXISTS 
         (SELECT [Campaign Name] FROM [All_Data_Sources_All_Channels_bkp_952018] WHERE [Date] = AllDaysInBetween.DayInBetween)
 
-----------------------------
+----------------------------  
         Create Table-valued function in SQL Server Studio Manager under Programmability:
   
 -- This is only  Deloitte client
