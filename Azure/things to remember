@@ -1,6 +1,6 @@
 Install Azure related SDKs and command-line (CLI) tools you need:
   www.azure.microsoft.com/downloads
-
+ 
 --------------------------------------------------------------------------------------
 Create a data factory
 On the left menu, select + New > Data + Analytics > Data Factory:
