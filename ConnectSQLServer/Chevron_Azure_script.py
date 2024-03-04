@@ -2,7 +2,7 @@
 ### Date:       December 25, 2018  ###
 ### Client:     Chevron (DM_1485,  10.2.186.181\SQLINS04,4723) ###
 ### Description:
-### Comparing data for three main tables below  ###
+### Comparing data for three main tables below  ### 
 ###      - (Innovid)  [DFID066573_DS999922_Email_Innovid_Device_Video_Report_Chevron_Extracted]
 ###      - (Innovid)  [DFID066576_DS999923_Email_Innovid_Device_Metadata_Report_Chevron_Extracted]
 ###      - (Sizmek)   [DFID066577_DS020307_Sizmek_Device_Video_Report_Chevron_Extracted]
