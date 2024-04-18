@@ -7,7 +7,7 @@
 ----------------------------- 
         Create Table-valued function in SQL Server Studio Manager under Programmability:
   
--- This is only  Deloitte client  
+-- This is only  Deloitte client 
 USE [DM_1220_DeloitteUSA]    
 GO
 
